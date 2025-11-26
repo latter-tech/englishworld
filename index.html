@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnglishWorld - 英语单词量测试</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+        }
+        .btn-option {
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .btn-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        .result-card {
+            text-align: center;
+            padding: 30px;
+        }
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .level-badge {
+            font-size: 1.2rem;
+            padding: 8px 20px;
+            border-radius: 20px;
+        }
+        .word-card {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .word-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .part-of-speech {
+            font-style: italic;
+            color: #6c757d;
+        }
+        .correct-answer {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .wrong-answer {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .header {
+            background: linear-gradient(135deg, #0d6efd, #6610f2);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-radius: 0 0 20px 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding: 20px 0;
+            background-color: #f1f1f1;
+            border-radius: 20px 20px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部标题区域 -->
+    <div class="header text-center">
+        <div class="container">
+            <h1 class="display-4">EnglishWorld</h1>
+            <p class="lead">英语单词量测试</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 开始页面 -->
+        <div id="start-page" class="card p-4 mb-4">
+            <div class="card-body text-center">
+                <h2 class="card-title">欢迎参加英语单词量测试</h2>
+                <p class="card-text">本测试包含20个选择题，每个问题会显示一个英语单词和四个中文选项，请选择最接近的释义。</p>
+                <p class="card-text">完成测试后，您将获得一个词汇量评估。</p>
+                <button id="start-btn" class="btn btn-primary btn-lg mt-3">开始测试</button>
+            </div>
+        </div>
+
+        <!-- 测试页面 -->
+        <div id="test-page" class="card p-4 mb-4" style="display: none;">
+            <div class="card-header bg-transparent">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">问题 <span id="current-question">1</span>/20</h5>
+                    <span id="timer" class="badge bg-secondary">时间: 00:00</span>
+                </div>
+                <div class="progress mt-2">
+                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 5%;" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="word-card mb-4">
+                    <div id="word" class="word-display text-center mb-2">loading...</div>
+                    <div id="part-of-speech" class="part-of-speech text-center">词性</div>
+                </div>
+                <div id="options-container" class="row">
+                    <!-- 选项将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果页面 -->
+        <div id="result-page" class="card result-card mb-4" style="display: none;">
+            <div class="card-body">
+                <h2 class="card-title">测试完成!</h2>
+                <div class="score-display my-4">
+                    <span id="score">0</span>/20
+                </div>
+                <div class="mb-4">
+                    <span id="level-badge" class="badge level-badge bg-primary">初级</span>
+                </div>
+                <p id="result-description" class="card-text">根据您的测试结果，我们评估您的词汇量约为XXXX个单词。</p>
+                <div class="mt-4">
+                    <button id="restart-btn" class="btn btn-primary me-2">重新测试</button>
+                    <button id="review-btn" class="btn btn-outline-secondary">查看答案</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 答案回顾页面 -->
+        <div id="review-page" class="card p-4 mb-4" style="display: none;">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">答案回顾</h5>
+            </div>
+            <div class="card-body">
+                <div id="review-container">
+                    <!-- 回顾内容将通过JavaScript动态生成 -->
+                </div>
+                <div class="text-center mt-4">
+                    <button id="back-to-result-btn" class="btn btn-primary">返回结果</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer text-center">
+        <div class="container">
+            <p class="mb-0">英语世界(englishworld.cn) - 单词量测试 &copy; 2025</p>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 单词数据库
+            const wordDatabase = [
+                { word: "abundant", meaning: "丰富的，充裕的", partOfSpeech: "adj.", options: ["异常的", "丰富的", "绝对的", "抽象的"] },
+                { word: "benevolent", meaning: "仁慈的，慈善的", partOfSpeech: "adj.", options: ["有益的", "仁慈的", "勇敢的", "美丽的"] },
+                { word: "cogent", meaning: "有说服力的", partOfSpeech: "adj.", options: ["认知的", "一致的", "有说服力的", "舒适的"] },
+                { word: "diligent", meaning: "勤奋的", partOfSpeech: "adj.", options: ["稀释的", "不同的", "勤奋的", "困难的"] },
+                { word: "eloquent", meaning: "雄辩的", partOfSpeech: "adj.", options: ["雄辩的", "电子的", "优雅的", "基本的"] },
+                { word: "frugal", meaning: "节俭的", partOfSpeech: "adj.", options: ["水果的", "节俭的", "友好的", "自由的"] },
+                { word: "gregarious", meaning: "群居的，爱交际的", partOfSpeech: "adj.", options: ["严肃的", "宏伟的", "爱交际的", "绿色的"] },
+                { word: "hinder", meaning: "阻碍", partOfSpeech: "v.", options: ["暗示", " hinder", "悬挂", "狩猎"] },
+                { word: "impeccable", meaning: "无瑕疵的", partOfSpeech: "adj.", options: ["不耐烦的", "无瑕疵的", "不可能的", "重要的"] },
+                { word: "jubilant", meaning: "欢呼的，喜悦的", partOfSpeech: "adj.", options: ["判断的", "跳跃的", "喜悦的", "公正的"] },
+                { word: "kinship", meaning: "亲属关系", partOfSpeech: "n.", options: ["亲属关系", "善良", "知识", "王国"] },
+                { word: "lucid", meaning: "清晰的", partOfSpeech: "adj.", options: ["幸运的", "奢侈的", "清晰的", "当地的"] },
+                { word: "magnanimous", meaning: "宽宏大量的", partOfSpeech: "adj.", options: ["磁性的", "宏大的", "宽宏大量的", "主要的"] },
+                { word: "nostalgia", meaning: "怀旧之情", partOfSpeech: "n.", options: ["怀旧之情", "北方", "鼻子", "笔记"] },
+                { word: "obsolete", meaning: "过时的", partOfSpeech: "adj.", options: ["明显的", "过时的", "可观察的", "服从的"] },
+                { word: "pervasive", meaning: "普遍的", partOfSpeech: "adj.", options: ["永久的", "个人的", "普遍的", "完美的"] },
+                { word: "quandary", meaning: "困境", partOfSpeech: "n.", options: ["数量", "质量", "困境", "四分之一"] },
+                { word: "resilient", meaning: "有弹性的", partOfSpeech: "adj.", options: ["抵抗的", "有弹性的", "残留的", "资源的"] },
+                { word: "scrutinize", meaning: "仔细检查", partOfSpeech: "v.", options: ["刮擦", "筛选", "仔细检查", "尖叫"] },
+                { word: "taciturn", meaning: "沉默寡言的", partOfSpeech: "adj.", options: ["战术的", "沉默寡言的", "有形的", "品尝的"] },
+                { word: "ubiquitous", meaning: "无处不在的", partOfSpeech: "adj.", options: ["最终的", "丑陋的", "无处不在的", "独特的"] },
+                { word: "vindicate", meaning: "证明无罪", partOfSpeech: "v.", options: ["违反", "证明无罪", "访问", "变化"] },
+                { word: "wary", meaning: "谨慎的", partOfSpeech: "adj.", options: ["温暖的", "浪费的", "谨慎的", "战争的"] },
+                { word: "zealous", meaning: "热心的", partOfSpeech: "adj.", options: ["斑马的", "零的", "热心的", "拉链的"] }
+            ];
+
+            // 游戏状态
+            let gameState = {
+                currentQuestion: 0,
+                score: 0,
+                startTime: null,
+                elapsedTime: 0,
+                timerInterval: null,
+                selectedWords: [],
+                userAnswers: [],
+                correctAnswers: []
+            };
+
+            // 页面元素
+            const startPage = $('#start-page');
+            const testPage = $('#test-page');
+            const resultPage = $('#result-page');
+            const reviewPage = $('#review-page');
+            const startBtn = $('#start-btn');
+            const restartBtn = $('#restart-btn');
+            const reviewBtn = $('#review-btn');
+            const backToResultBtn = $('#back-to-result-btn');
+
+            // 开始游戏
+            startBtn.click(startGame);
+            restartBtn.click(startGame);
+            
+            // 查看答案
+            reviewBtn.click(showReview);
+            backToResultBtn.click(showResult);
+
+            // 开始游戏函数
+            function startGame() {
+                // 重置游戏状态
+                gameState = {
+                    currentQuestion: 0,
+                    score: 0,
+                    startTime: new Date(),
+                    elapsedTime: 0,
+                    timerInterval: null,
+                    selectedWords: [],
+                    userAnswers: [],
+                    correctAnswers: []
+                };
+
+                // 随机选择20个单词
+                const shuffledWords = [...wordDatabase].sort(() => 0.5 - Math.random());
+                gameState.selectedWords = shuffledWords.slice(0, 20);
+
+                // 显示测试页面
+                startPage.hide();
+                resultPage.hide();
+                reviewPage.hide();
+                testPage.show();
+
+                // 开始计时器
+                startTimer();
+
+                // 显示第一个问题
+                displayQuestion(0);
+            }
+
+            // 显示问题函数
+            function displayQuestion(index) {
+                const question = gameState.selectedWords[index];
+                $('#current-question').text(index + 1);
+                $('#word').text(question.word);
+                $('#part-of-speech').text(question.partOfSpeech);
+
+                // 更新进度条
+                const progress = ((index + 1) / 20) * 100;
+                $('#progress-bar').css('width', `${progress}%`);
+
+                // 生成选项
+                const optionsContainer = $('#options-container');
+                optionsContainer.empty();
+
+                // 随机排列选项
+                const options = [...question.options];
+                const correctIndex = options.indexOf(question.meaning);
+                options.sort(() => 0.5 - Math.random());
+
+                // 创建选项按钮
+                options.forEach((option, i) => {
+                    const optionBtn = $('<button>')
+                        .addClass('btn btn-outline-primary btn-option')
+                        .text(option)
+                        .attr('data-index', i)
+                        .click(function() {
+                            checkAnswer($(this), correctIndex, options, question.meaning);
+                        });
+                    optionsContainer.append($('<div>').addClass('col-md-6').append(optionBtn));
+                });
+            }
+
+            // 检查答案函数
+            function checkAnswer(selectedBtn, correctIndex, options, correctAnswer) {
+                const selectedIndex = parseInt(selectedBtn.attr('data-index'));
+                const selectedAnswer = options[selectedIndex];
+                
+                // 禁用所有选项按钮
+                $('.btn-option').prop('disabled', true);
+                
+                // 记录用户答案和正确答案
+                gameState.userAnswers.push(selectedAnswer);
+                gameState.correctAnswers.push(correctAnswer);
+                
+                // 检查答案是否正确
+                if (selectedAnswer === correctAnswer) {
+                    selectedBtn.removeClass('btn-outline-primary').addClass('btn-success');
+                    gameState.score++;
+                } else {
+                    selectedBtn.removeClass('btn-outline-primary').addClass('btn-danger');
+                    // 高亮显示正确答案
+                    $('.btn-option').each(function() {
+                        if ($(this).text() === correctAnswer) {
+                            $(this).removeClass('btn-outline-primary').addClass('btn-success');
+                        }
+                    });
+                }
+                
+                // 延迟后显示下一题或结果
+                setTimeout(() => {
+                    gameState.currentQuestion++;
+                    if (gameState.currentQuestion < 20) {
+                        displayQuestion(gameState.currentQuestion);
+                    } else {
+                        endGame();
+                    }
+                }, 1500);
+            }
+
+            // 结束游戏函数
+            function endGame() {
+                // 停止计时器
+                clearInterval(gameState.timerInterval);
+                
+                // 计算用时
+                const endTime = new Date();
+                gameState.elapsedTime = Math.floor((endTime - gameState.startTime) / 1000);
+                
+                // 显示结果页面
+                testPage.hide();
+                resultPage.show();
+                
+                // 显示分数
+                $('#score').text(gameState.score);
+                
+                // 根据分数显示等级
+                let level, description, badgeClass;
+                if (gameState.score >= 18) {
+                    level = "高级";
+                    description = "恭喜！您的词汇量非常丰富，估计在8000-10000个单词以上，达到高级英语水平。";
+                    badgeClass = "bg-success";
+                } else if (gameState.score >= 14) {
+                    level = "中高级";
+                    description = "很好！您的词汇量不错，估计在5000-8000个单词，达到中高级英语水平。";
+                    badgeClass = "bg-info";
+                } else if (gameState.score >= 10) {
+                    level = "中级";
+                    description = "不错！您的词汇量中等，估计在3000-5000个单词，达到中级英语水平。";
+                    badgeClass = "bg-primary";
+                } else if (gameState.score >= 6) {
+                    level = "初级";
+                    description = "继续努力！您的词汇量基础，估计在1500-3000个单词，处于初级英语水平。";
+                    badgeClass = "bg-warning";
+                } else {
+                    level = "入门";
+                    description = "加油！您的词汇量有限，估计在1500个单词以下，处于英语入门水平。";
+                    badgeClass = "bg-danger";
+                }
+                
+                $('#level-badge').text(level).removeClass().addClass(`badge level-badge ${badgeClass}`);
+                $('#result-description').text(description);
+            }
+
+            // 显示答案回顾函数
+            function showReview() {
+                resultPage.hide();
+                reviewPage.show();
+                
+                const reviewContainer = $('#review-container');
+                reviewContainer.empty();
+                
+                gameState.selectedWords.forEach((word, index) => {
+                    const userAnswer = gameState.userAnswers[index];
+                    const correctAnswer = gameState.correctAnswers[index];
+                    const isCorrect = userAnswer === correctAnswer;
+                    
+                    const reviewItem = $('<div>').addClass(`card mb-3 ${isCorrect ? 'border-success' : 'border-danger'}`);
+                    const cardBody = $('<div>').addClass('card-body');
+                    
+                    const questionHeader = $('<h5>').addClass('card-title').text(`问题 ${index + 1}: ${word.word} (${word.partOfSpeech})`);
+                    cardBody.append(questionHeader);
+                    
+                    const userAnswerDiv = $('<p>').addClass('card-text').html(`<strong>您的答案:</strong> <span class="${isCorrect ? 'text-success' : 'text-danger'}">${userAnswer}</span>`);
+                    cardBody.append(userAnswerDiv);
+                    
+                    if (!isCorrect) {
+                        const correctAnswerDiv = $('<p>').addClass('card-text').html(`<strong>正确答案:</strong> <span class="text-success">${correctAnswer}</span>`);
+                        cardBody.append(correctAnswerDiv);
+                    }
+                    
+                    reviewItem.append(cardBody);
+                    reviewContainer.append(reviewItem);
+                });
+            }
+
+            // 显示结果函数
+            function showResult() {
+                reviewPage.hide();
+                resultPage.show();
+            }
+
+            // 计时器函数
+            function startTimer() {
+                gameState.startTime = new Date();
+                gameState.timerInterval = setInterval(updateTimer, 1000);
+            }
+
+            function updateTimer() {
+                const currentTime = new Date();
+                gameState.elapsedTime = Math.floor((currentTime - gameState.startTime) / 1000);
+                
+                const minutes = Math.floor(gameState.elapsedTime / 60);
+                const seconds = gameState.elapsedTime % 60;
+                
+                $('#timer').text(`时间: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+            }
+        });
+    </script>
+</body>
+</html>
